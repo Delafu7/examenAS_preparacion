@@ -274,9 +274,159 @@ sudo fio --name=random_write_test \
 | `--numjobs=1`               | Número de hilos/trabajos ejecutándose en paralelo              |
 | `--directory=/mnt/disco1`   | Carpeta donde se guarda el archivo de prueba                   |
 
+### LVM
+
+Volumen lógico LVM:
+
+```bash
+sudo pvcreate /dev/sdb1 /dev/sdb2 /dev/sdc1
+sudo pvs
+```
+```bash
+sudo vgcreate vg_datos /dev/sdb1 /dev/sdb2 /dev/sdc1
+sudo vgs
+```
+```bash
+sudo lvcreate -l 100%FREE -n lv_datos vg_datos
+sudo lvs
+```
+
+Para extender el volumen lógico:
+
+```bash
+sudo vgextend vg_datos /dev/sdc2
+sudo lvextend /dev/vg_datos/lv_datos /dev/sdc2
+sudo resize2fs /dev/vg_datos/lv_datos
+```
+Para eliminar los volumenes lógicos creados:
+
+```bash
+sudo umount /mnt/lvm
+
+sudo lvremove /dev/vg_datos/lv_datos
+sudo lvs
+
+sudo vgremove vg_datos
+sudo vgs
+
+sudo pvremove /dev/sdb1 /dev/sdb2 /dev/sdc1 /dev/sdc2
+
+sudo pvs
+
+```
+### Raids
+
+```bash
+sudo apt install mdadm -y
+```
+Crear un sistema RAID 5 con 3 de las particiones. Crear un sistema de ficheros ext4 para el sistema RAID 5 y hacerlo accesible. Copiar el contenido de la carpeta /var a la carpeta del sistema RAID.
+
+```bash
+sudo mdadm --create  /dev/md0 --verbose --level=5 --raid-devices=3 /dev/sdb1 /dev/sdb2 /dev/sdc1
+
+#Para ver los cambios
+cat /proc/mdstat
+sudo mdadm --detail /dev/md0
+
+#Montaje
+sudo mkfs.ext4 /dev/md0
+
+sudo mkdir /mnt/raid5
+sudo mount /dev/md0 /mnt/raid5
+df -h /mnt/raid5
+
+sudo cp -r /var/* /mnt/raid5/
+ls /mnt/raid5 | head
+
+```
+
+Simular un fallo en el tercer disco (parámetro -f). Recuperar la información perdida usando la partición que quedó libre.
+
+- Disco a simular fallo 
+
+```bash
+cat /proc/mdstat
+
+sudo mdadm -f /dev/md0 /dev/sdc1
+```
+- Quitar disco
+```bash
+sudo mdadm -r /dev/md0 /dev/sdc1
+```
+- Añadir nuevo disco
+```bash
+sudo mdadm -a /dev/md0 /dev/sdc2
+cat /proc/mdstat
+sudo du -sh /mnt/raid5
+```
+
+### Backups
+
+![captura2-2](/capturasTema2/cap2.png)
+
+- Instalar rsnapshot en el sistema:
+
+```bash
+sudo apt install rsnapshot
+```
+
+Configurar rsnapshot de la siguiente forma:
+a. Directorio para almacenar las copias de seguridad: /backups.
+b. Niveles de copia e intervalos:
+i. “horaria”, 24
+ii. “diaria”, 7
+iii. “semanal”, 4
+c. Directorios a guardar (todos se almacenan en el directorio /backups): /home, /etc y /var/log
 
 
+```bash
+sudo nano /etc/rsnapshot.conf
+```
+Ruta de almacenamiento:
+
+Busca la línea que empieza por snapshot_root y cámbiala así:
+
+```bash
+snapshot_root   /backups/
+```
+Intervalos de copia:
+
+Agrega o modifica las líneas retain (en este orden):
+
+```bash
+retain  hourly  24
+retain  daily   7
+retain  weekly  4
+```
+Directorios a copiar:
+
+Busca las líneas backup y deja así:
+
+```bash
+backup  /home/      localhost/
+backup  /etc/       localhost/
+backup  /var/log/   localhost/
+```
+- localhost/ es simplemente un nombre lógico dentro de /backups. Ejemplo: /backups/hourly.0/localhost/home/
+
+Verificar que la configuración es correcta:
+
+```bash
+sudo rsnapshot configtest
+```
+
+Realizar una copia de tipo “horaria”:
+
+```bash
+sudo rsnapshot hourly
+```
+Comprobar cambios entre guardados:
+
+```bash
+sudo rsnapshot-diff /backups/hourly.1 /backups/hourly.0
+```
 ## Tema 1.3:
 
 ## Tema 2.1:
+
 
