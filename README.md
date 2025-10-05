@@ -8,9 +8,11 @@
    ### Comandos basicos:
 
    - **man**: man <comando>  -> info de comando
+     
    ![captura1](/capturasTema1/cap1.png)
    ![captura2](/capturasTema1/cap2.png)
    ![captura3](/capturasTema1/cap3.png)
+
    - **chmod**: Modifica permisos de archivos o directorios
    - **chown**: Modificar UID/GID de un fichero
    - **last** : Las ultimas entradas (-n numero de entradas)
@@ -50,7 +52,9 @@ Ejemplos de sort:
 
     - Negar conjunto: ^ dentro de [] significa “todo menos”. [^0-9]
 
-    | Regex   | Significado                 |
+
+
+| Regex   | Significado                 |
 | ------- | --------------------------- |
 | `*`     | 0 o más repeticiones        |
 | `+`     | 1 o más repeticiones        |
@@ -59,34 +63,35 @@ Ejemplos de sort:
 | `{n,}`  | n o más                     |
 | `{n,m}` | entre n y m repeticiones    |
 
+
    ### Principales ejercicios vistos en clase:
 
    1. Crear un script que pida al usuario que teclee una palabra y escriba por pantalla el número de caracteres de esa palabra.
 
    ```bash 
-   # Pedir palabra al usuario
-read -p "Escribe una palabra: " palabra
-
-# Calcular longitud usando ${#variable}
-longitud=${#palabra}
-
-# Mostrar resultado
-echo "La palabra '$palabra' tiene $longitud caracteres."
+      # Pedir palabra al usuario
+   read -p "Escribe una palabra: " palabra
+   
+   # Calcular longitud usando ${#variable}
+   longitud=${#palabra}
+   
+   # Mostrar resultado
+   echo "La palabra '$palabra' tiene $longitud caracteres."
 
    ```
 
 2. Crear un script que pida al usuario que teclee una palabra y compruebe si es un comando del sistema o no.
 
 ```bash 
-    echo -n "Escribe un comando: " 
-    read comando
-    if command -v $comando > /dev/null 2>&1; then
-
-            echo " El $comando es un comando de bash."
-    else
-
-            echo "El $comando no es un comando de bash."
-    fi
+       echo -n "Escribe un comando: " 
+       read comando
+       if command -v $comando > /dev/null 2>&1; then
+   
+               echo " El $comando es un comando de bash."
+       else
+   
+               echo "El $comando no es un comando de bash."
+       fi
 
 ```
 3. Crear ficheros con una linea de man ls cada uno.
