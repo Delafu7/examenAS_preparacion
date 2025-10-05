@@ -209,7 +209,70 @@ Visualizar particiones:
 ### Montaje automatico particiones
 
   ![captura2-1](/capturasTema2/cap1.png)
+Para montar archivos debemos de buscar la UUID de nombres las particiones a montar:
 
+  ```bash
+        sudo blkid 
+  ```
+
+ Ejemplos de montajes en **/etc/fstab** :
+
+```bash
+    sudo nano /etc/fstab
+```
+```bash
+UUID=66c8f008-0f46-46ed-9ea1-b0e2dbfaa75f  /disco1  ext3   defaults  0 2
+UUID=fa76a4ca-3310-4aeb-b205-4d44d5ef2a7c  /disco2  btrfs  defaults  0 2
+UUID=1a2087a0-1583-4430-9372-3252b77f7c45  /disco3  xfs    defaults  0 2
+UUID=402841c3-4071-4815-90f5-1605b85fc09d /disco4  ext4   defaults  0 2
+```
+Probar el montaje automático:
+
+```bash 
+sudo mount -a
+df -hT
+```
+### Redimensionar
+
+Redimensionar la particion en un  fichero:
+
+```bash
+sudo resize2fs /dev/sdb1 3G
+sudo cfdisk /dev/sdb
+sudo mount /dev/sdb1 /disco1
+df -hT /disco1
+```
+### Pruebas de rendimiento
+
+```bash 
+sudo apt install -y fio
+```
+
+```bash
+sudo fio --name=random_write_test \
+         --ioengine=libaio \
+         --iodepth=256 \
+         --rw=randwrite \
+         --bs=4k \
+         --size=1G \
+         --runtime=1m --time_based \
+         --direct=1 \
+         --numjobs=1 \
+         --directory=/mnt/disco1
+
+```
+| Parámetro                   | Significado                                                    |
+| --------------------------- | -------------------------------------------------------------- |
+| `--name=random_write_test`  | Nombre de la prueba                                            |
+| `--ioengine=libaio`         | Usa la librería de I/O asíncrona de Linux                      |
+| `--iodepth=256`             | Profundidad de cola de I/O (número de operaciones simultáneas) |
+| `--rw=randwrite`            | Tipo de operación: escritura aleatoria                         |
+| `--bs=4k`                   | Tamaño de bloque: 4 KB por operación                           |
+| `--size=1G`                 | Tamaño total del archivo de prueba: 1 GB                       |
+| `--runtime=1m --time_based` | Ejecutar durante 1 minuto, en lugar de usar tamaño como límite |
+| `--direct=1`                | Escritura directa, evita la caché del sistema operativo        |
+| `--numjobs=1`               | Número de hilos/trabajos ejecutándose en paralelo              |
+| `--directory=/mnt/disco1`   | Carpeta donde se guarda el archivo de prueba                   |
 
 
 
