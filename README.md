@@ -14,6 +14,7 @@
    - **chmod**: Modifica permisos de archivos o directorios
    - **chown**: Modificar UID/GID de un fichero
    - **last** : Las ultimas entradas (-n numero de entradas)
+
 Ejemplos de sort:
 - sort -t: -k1,1 /etc/passwd   
 - sort -t: -k3,3n /etc/passwd
