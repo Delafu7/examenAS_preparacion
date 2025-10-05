@@ -174,6 +174,43 @@ done < nombres.txt
 
 ```
 ## Tema 1.2:
+### Comandos para discos
+
+Todas las pariciones de disco se encuentran en **/dev/**. Ejemplo: /dev/sda (disco) o /dev/mdX (Raid).
+
+Para crear particiones de disco se emplea **cfdisk**:
+
+```bash
+
+sudo cfdisk /dev/sdb
+```
+
+Comando **mkfs** : crea un sistema de ficheros -> mkfs.<tipo-de-sistema> <partición>
+
+```bash
+mkfs.ext4 /dev/sda3
+```
+
+Para montar una partición, se usa **mount** -> mount <opciones> [fichero-disp] [punto-montaje]
+
+```bash
+mount -t ext4 /dev/sdc1 /home/unai/miDisco
+```
+
+Desmontar particion, comando **umount** -> umount [punto-montaje]
+
+Visualizar particiones:
+
+- **lsblk -e7** -> Muestra discos y particiones
+- **df -h** -> Muestra particiones y puntos de montaje
+- **du -sh <archivo>** -> Muestra el tamaño que tiene un archivo o directorio
+
+
+### Montaje automatico particiones
+
+  ![captura2-1](/capturasTema2/cap1.png)
+
+
 
 
 ## Tema 1.3:
