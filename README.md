@@ -28,7 +28,12 @@
     - [Syslog](#syslog)
     - [Log Rotate](#log-rotate)
   - [Tema 2.1](#tema-21)
-    - [Generar código aleatorio](#generar-codigo-aleatorio)
+    - [NFS](#nfs)
+    - [MQTT](#mqtt)
+      - [Cuentas de usuario](#cuentas-de-usuario)
+      - [ACLs](#acls)
+    
+  - [Generar código aleatorio](#generar-codigo-aleatorio)
 
 ## Tema 1.1:
 
@@ -653,7 +658,90 @@ En el servidor al menos tiene que tener instalado:
   sudo apt install nfs-kernel-server nfs-commmon
 ```
 Configuración del servidor: fichero **/etc/exports**
+
+![captura4-1](/capturasTema4/cap1.png)
+![captura4-2](/capturasTema4/cap2.png)
+
+Configuración del servidor:
+
+- Comprobar los sistemas exportados por NFS
+```bash
+exportfs -ra
+```
+- Reiniciar el servicio NFS
+```bash
+service nfs-kernel-server restart
+```
+
+Cliente: Crear un punto de montaje
+
+- Montar el directorio remoto usando la IP o nombre de dominio (la ip del servidor es 192.168.0.8 )
+```bash
+sudo mount -t nfs 192.168.0.8:/var/nfs/general /tmp/nfs
+```
+
+- Verificar que el montaje se ha hecho correctamente
+```bash
+df -h
+```
+![captura4-3](/capturasTema4/cap3.png)
+
+### MQTT
+
+```bash
+sudo apt install mosquitto mosquitto-clients
+service mosquitto status
+```
+![captura4-4](/capturasTema4/cap4.png)
+![captura4-5](/capturasTema4/cap5.png)
+![captura4-6](/capturasTema4/cap6.png)
+
+Hay que tener en cuenta que si se usa un usuario y un password, **allow_anonymous** será false.
+
+Utiliza el parametro -q, donde N es el nivel deseado (0, 1 o 2)
+
+```bash
+mosquitto_sub ... -q N
+mosquitto_pub ... -q N
+```
+### Cuentas de usuario
+
+![captura4-7](/capturasTema4/cap7.png)
+![captura4-8](/capturasTema4/cap8.png)
+
+
+Para reiniciar mosquitto:
+```bash
+sudo systemctl restart mosquitto
+```
+Para suscribir a un tópico:
+```bash
+mosquitto_sub -h localhost -t "$topico" -u "$usuario" -P "$password"
+```
+Para publicar en un tópico:
+```bash
+mosquitto_pub -h "$host" -t "$topico" -u "$usuario" -P "$password" -m "$mensaje"
+```
+### ACLs
+
+Crear un fichero con una estructura parecida a esta:
+
+```bash
+# Dar acceso de lectura a los mensajes de "ciudades" a usuario1
+user usuario1
+topic read ciudades/#
+# Dar acceso de lectura y escritura al topico ciudades/bizkaia a usuario2
+user usuario2
+topic readwrite ciudades/bizkaia/#
+# Dar acceso de lectura y escritura a todos los topicos a usuario3
+user usuario3
+topic readwrite #
+```
+
+![captura4-9](/capturasTema4/cap9.png)
+
 ## Generar codigo aleatorio
+
 
 Con dd:
 
