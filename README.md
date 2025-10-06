@@ -3,6 +3,33 @@
 
 # Indice
 
+- [Preparación para el examen](#preparación-para-el-examen)
+  - [Tema 1.1](#tema-11)
+    - [Comandos básicos](#comandos-basicos)
+    - [Info directorios](#info-directorios)
+    - [Shell Info](#shell-info)
+    - [Expresiones regulares](#algunas-expresiones-regulares)
+    - [Principales ejercicios vistos en clase](#principales-ejercicios-vistos-en-clase)
+  - [Tema 1.2](#tema-12)
+    - [Comandos para discos](#comandos-para-discos)
+    - [Montaje automático particiones](#montaje-automatico-particiones)
+    - [Redimensionar](#redimensionar)
+    - [Pruebas de rendimiento](#pruebas-de-rendimiento)
+    - [LVM](#lvm)
+    - [RAIDs](#raids)
+    - [Backups](#backups)
+  - [Tema 1.3](#tema-13)
+    - [Prioridades y nice](#prioridades-y-nice)
+    - [Número de procesos](#numero-de-procesos)
+    - [Stress-ng y Kill](#stress-ng-y-kill)
+    - [Limitar uso de recursos](#limitar-uso-de-recursos)
+    - [Crontab](#crontab)
+    - [Comandos monitorización](#comandos-monitorizacion)
+    - [Syslog](#syslog)
+    - [Log Rotate](#log-rotate)
+  - [Tema 2.1](#tema-21)
+    - [Generar código aleatorio](#generar-codigo-aleatorio)
+
 ## Tema 1.1:
 
    ### Comandos basicos:
@@ -427,6 +454,208 @@ sudo rsnapshot-diff /backups/hourly.1 /backups/hourly.0
 ```
 ## Tema 1.3:
 
+### Prioridades y nice
+
+![captura3-1](/capturasTema3/cap1.png)
+
+Lanza un comando con un valor NI concreto:
+
+```bash
+  nice -n 9 ./miScript
+```
+Lanza un cambia un valor NI concreto:
+
+```bash
+  renice -n -20 -p PID
+```
+Lanza un proceso con una prioridad de tiempo real:
+
+```bash
+  chrt --rr 20 ./miPrograma
+```
+### Numero de procesos
+
+Obtener el número de procesos en ejecución en el sistema:
+
+```bash
+top
+```
+Salida: Tasks: 250 total,   1 running, 249 sleeping, 0 stopped, 0 zombie
+
+Para obtener los procesos lanzados por un usuario:
+```bash
+ps -u unai -o pid,user,pri,nice,args
+
+# Num procesos
+
+ps -u unai -o pid,user,pri,nice,args | wc -l
+
+```
+Si se quiere ordenar según algún parametro en tiempo real:
+
+```bash
+  top -o PR
+```
+### Stress-ng y KIll
+
+```bash
+sudo apt install stress-ng -y
+stress-ng --cpu 1 --timeout 20s &
+```
+Buscar proceso:
+```bash
+pgrep stress-ng
+```
+
+Parar proceso:
+```bash
+kill -STOP 7067
+```
+Continuar proceso:
+```bash
+kill -CONT 7067
+```
+Cambiar prioridad:
+```bash
+sudo renice +19 -p 7067
+```
+### Limitar uso de recursos
+
+![captura3-2](/capturasTema3/cap2.png)
+
+Limitar el máximo tiempo de uso de CPU a 5 minutos para todos los usuarios.
+
+```bash
+  ulimit -t 300
+```
+
+![captura3-3](/capturasTema3/cap3.png)
+
+Limitar el máximo tiempo de uso de CPU a 5 minutos para todos los usuarios.
+
+```bash
+sudo nano /etc/security/limits.conf
+
+ #Añade al final:
+
+* hard cpu 5
+
+```
+
+El comando **cpulimit** permite limitar el uso de CPU constante,fija un umbral:
+
+```bash
+  cpulimit --pid PID --limit <límite>
+```
+
+### Crontab
+
+![captura3-4](/capturasTema3/cap4.png)
+
+Hay que tener en cuenta si se quiere intervalos de tiempo simplemente hay que poner num1-num2:
+
+```bash
+crontab -e
+
+0 17 1-5 * * rm -rf /tmp/*
+```
+
+### Comandos monitorizacion
+
+![captura3-5](/capturasTema3/cap5.png)
+![captura3-6](/capturasTema3/cap6.png)
+![captura3-7](/capturasTema3/cap7.png)
+
+Ejemplos de netcat:
+
+```bash
+dd if=/dev/urandom bs=1024 count=1000 | nc <IP-de-A> 3000
+
+nc -l 3000 < archivo.txt
+
+nc <IP-de-A> 3000 > archivo_recibido.txt
+```
+
+### Syslog
+
+![captura3-8](/capturasTema3/cap8.png)
+
+Ejemplo de modificación:
+
+
+```bash 
+sudo nano /etc/rsyslog.d/50-default.conf
+```
+Añadir dentro de **/etc/rsyslog.d/50-default.conf** :
+
+user.warn			-/var/log/logs_ej3
+
+```bash
+sudo service rsyslog restart
+```
+Comprobar que funciona:
+
+```bash
+logger -p warn "Hola User!"
+
+cat /var/log/logs_ej3
+```
+
+### Log Rotate
+
+1. Configurar la rotación de logs (fichero /var/log/syslog) para que se guarden de manera mensual y comprimida, y para que todos los logs generados en un año se guarden en un directorio llamado /var/log/syslog.old
+
+- Editar el archivo de configuración de logrotate:
+
+```bash
+sudo nano /etc/logrotate.d/rsyslog
+```
+```bash
+
+/var/log/syslog 
+{
+    rotate 12
+    olddir /var/log/syslog.old
+    monthly
+    compress
+    missingok
+}
+
+```
+| Directiva                    | Explicación                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `/var/log/syslog { ... }`    | Indica a `logrotate` que esta sección aplica al fichero `/var/log/syslog`.                |
+| `rotate 12`                  | Guarda 12 rotaciones antiguas. Como la rotación es mensual, equivale a **1 año de logs**. |
+| `olddir /var/log/syslog.old` | Mueve los ficheros rotados a este directorio en lugar de dejarlos en el mismo sitio.      |
+| `monthly`                    | Establece la rotación **una vez al mes**.                                                 |
+| `compress`                   | Comprime los ficheros rotados (por defecto usa `gzip`, generando `.gz`).                  |
+| `missingok`                  | Evita errores si el fichero no existe (por ejemplo, si aún no se ha generado).            |
+
+
+Forzar rotación:
+
+```bash
+sudo logrotate -f /etc/logrotate.conf
+```
+
 ## Tema 2.1:
 
+## Generar codigo aleatorio
 
+Con dd:
+
+```bash
+dd if=/dev/urandom bs=1024 count=1000 > archivo.txt
+```
+- bs=1024 count=1000 → 1 MB de datos.
+
+Con fio:
+
+```bash
+sudo apt install fio
+```
+
+```bash
+sudo fio --name=datos --size=50M --filename=/raidExamen/datos
+```
+- Genera 50M
