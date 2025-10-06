@@ -640,6 +640,19 @@ sudo logrotate -f /etc/logrotate.conf
 
 ## Tema 2.1:
 
+### NFS
+
+En el cliente al menos tiene que tener instalado:
+
+```bash
+  sudo apt install nfs-commmon
+```
+
+En el servidor al menos tiene que tener instalado:
+```bash
+  sudo apt install nfs-kernel-server nfs-commmon
+```
+Configuración del servidor: fichero **/etc/exports**
 ## Generar codigo aleatorio
 
 Con dd:
