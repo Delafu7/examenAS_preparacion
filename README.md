@@ -593,7 +593,10 @@ sudo nano /etc/rsyslog.d/50-default.conf
 ```
 Añadir dentro de **/etc/rsyslog.d/50-default.conf** :
 
+```bash
 user.warn			-/var/log/logs_ej3
+```
+
 
 ```bash
 sudo service rsyslog restart
@@ -601,7 +604,7 @@ sudo service rsyslog restart
 Comprobar que funciona:
 
 ```bash
-logger -p warn "Hola User!"
+logger -p user.warn "Hola User!"
 
 cat /var/log/logs_ej3
 ```
