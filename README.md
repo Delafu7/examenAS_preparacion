@@ -650,12 +650,12 @@ sudo logrotate -f /etc/logrotate.conf
 En el cliente al menos tiene que tener instalado:
 
 ```bash
-  sudo apt install nfs-commmon
+  sudo apt install nfs-common
 ```
 
 En el servidor al menos tiene que tener instalado:
 ```bash
-  sudo apt install nfs-kernel-server nfs-commmon
+  sudo apt install nfs-kernel-server nfs-common
 ```
 Configuración del servidor: fichero **/etc/exports**
 
