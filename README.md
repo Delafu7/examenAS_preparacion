@@ -750,13 +750,16 @@ dd if=/dev/urandom bs=1024 count=1000 > archivo.txt
 ```
 - bs=1024 count=1000 → 1 MB de datos.
 
-Con fio:
+Para generar números aleatorios en Shell, que esten en un intervalo:
+
+- Pogramar el sistema para que cada 1 minuto se envie un mensaje MQTT al topic "examen" usando el usuario "Mikel". El contenido del mesanje sera un numero aleatorio entre 1 y 100
+  
+```bash
+crontab -e
+    * * * * * mosquitto_pub -h localhost -t examen -m $((1 + RANDOM % 100)) -u Mikel -P 1234
+```
+- Generar temperatura aleatoria entre 10.0 y 24.0 con 1 decimal. RANDOM da un número entre 0 y 32767, lo normalizamos al rango
 
 ```bash
-sudo apt install fio
+temp=$(printf "%.1f" "$(echo "$((100 + RANDOM % 141)) / 10" | bc -l)")
 ```
-
-```bash
-sudo fio --name=datos --size=50M --filename=/raidExamen/datos
-```
-- Genera 50M
