@@ -667,7 +667,14 @@ Configuración del servidor: fichero **/etc/exports**
 
 Configuración del servidor:
 
+
 - Comprobar los sistemas exportados por NFS
+
+```bash
+exportfs -v
+```
+- Aplicar la configuración de NFS
+
 ```bash
 exportfs -ra
 ```
