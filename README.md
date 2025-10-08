@@ -580,6 +580,11 @@ nc -l 3000 < archivo.txt
 
 nc <IP-de-A> 3000 > archivo_recibido.txt
 ```
+Para la tasa de transferencia se puede usar mismamente **nethogs**:
+```bash
+sudo apt install nethogs -y
+sudo nethogs
+```
 
 ### Syslog
 
@@ -762,6 +767,8 @@ topic readwrite ciudades/bizkaia/#
 # Dar acceso de lectura y escritura a todos los topicos a usuario3
 user usuario3
 topic readwrite #
+user usuario3
+topic readwrite ciudades
 ```
 
 ![captura4-9](/capturasTema4/cap9.png)
