@@ -622,22 +622,30 @@ sudo nano /etc/logrotate.d/rsyslog
 
 /var/log/syslog 
 {
+    monthly
     rotate 12
     olddir /var/log/syslog.old
-    monthly
     compress
     missingok
+    notifempty
+    create 640 syslog adm
+    postrotate
+        /usr/lib/rsyslog/rsyslog-rotate || true
+    endscript
 }
 
 ```
-| Directiva                    | Explicación                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------------------- |
-| `/var/log/syslog { ... }`    | Indica a `logrotate` que esta sección aplica al fichero `/var/log/syslog`.                |
-| `rotate 12`                  | Guarda 12 rotaciones antiguas. Como la rotación es mensual, equivale a **1 año de logs**. |
-| `olddir /var/log/syslog.old` | Mueve los ficheros rotados a este directorio en lugar de dejarlos en el mismo sitio.      |
-| `monthly`                    | Establece la rotación **una vez al mes**.                                                 |
-| `compress`                   | Comprime los ficheros rotados (por defecto usa `gzip`, generando `.gz`).                  |
-| `missingok`                  | Evita errores si el fichero no existe (por ejemplo, si aún no se ha generado).            |
+| Directiva                       | Explicación                                                                                                  |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------|
+| `/var/log/syslog { ... }`       | Indica a `logrotate` que esta sección aplica al fichero `/var/log/syslog`.                                   |
+| `rotate 12`                     | Guarda 12 rotaciones antiguas. Como la rotación es mensual, equivale a **1 año de logs**.                    |
+| `olddir /var/log/syslog.old`    | Mueve los ficheros rotados a este directorio en lugar de dejarlos en el mismo sitio.                         |
+| `monthly`                       | Establece la rotación **una vez al mes**.                                                                    |
+| `compress`                      | Comprime los ficheros rotados (por defecto usa `gzip`, generando `.gz`).                                     |
+| `missingok`                     | Evita errores si el fichero no existe (por ejemplo, si aún no se ha generado).                               |
+| `notifempty`                    | Evita rotar el log si está vacío, para no generar archivos innecesarios.                                     |
+| `create 640 syslog adm`         | Crea un nuevo fichero de log tras la rotación con permisos y propietario correctos, evitando problemas con rsyslog. |
+| `postrotate ... endscript`      | Ejecuta comandos después de la rotación; en este caso, avisa a `rsyslog` para que reabra los ficheros rotados. |
 
 
 Forzar rotación:
@@ -664,6 +672,12 @@ Configuración del servidor: fichero **/etc/exports**
 
 ![captura4-1](/capturasTema4/cap1.png)
 ![captura4-2](/capturasTema4/cap2.png)
+
+Es recomendable emplear este comando, para la carpeta a compartir:
+```bash
+sudo mkdir -p /datosNfs
+sudo chown nobody:nogroup /datosNfs
+```
 
 Configuración del servidor:
 
@@ -732,6 +746,8 @@ Para publicar en un tópico:
 ```bash
 mosquitto_pub -h "$host" -t "$topico" -u "$usuario" -P "$password" -m "$mensaje"
 ```
+Modificar el archivo **/etc/mosquitto/mosquitto.conf** .
+
 ### ACLs
 
 Crear un fichero con una estructura parecida a esta:
@@ -749,6 +765,14 @@ topic readwrite #
 ```
 
 ![captura4-9](/capturasTema4/cap9.png)
+
+Ejemplo de **/etc/mosquitto/mosquitto.conf**:
+```bash
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+acl_file /etc/mosquitto/acl
+listener 1883
+```
 
 ## Generar codigo aleatorio
 
@@ -772,4 +796,8 @@ crontab -e
 
 ```bash
 temp=$(printf "%.1f" "$(echo "$((100 + RANDOM % 141)) / 10" | bc -l)")
+```
+- Generar humedad (50 - 60 entero)
+```bash
+humedad=$((50 + RANDOM % 11))
 ```
