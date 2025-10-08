@@ -738,9 +738,11 @@ mosquitto_pub ... -q N
 ![captura4-7](/capturasTema4/cap7.png)
 ![captura4-8](/capturasTema4/cap8.png)
 
-
 Para reiniciar mosquitto:
 ```bash
+sudo chown mosquitto:mosquitto /etc/mosquitto/passwd
+sudo chown mosquitto:mosquitto /etc/mosquitto/acl
+sudo chmod 600 /etc/mosquitto/passwd /etc/mosquitto/acl
 sudo systemctl restart mosquitto
 ```
 Para suscribir a un tópico:
